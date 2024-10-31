@@ -4,9 +4,7 @@ import { MsKitchenController } from './ms-kitchen.controller';
 import { MsKitchenService } from './ms-kitchen.service';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot(),
-  ],
+  imports: [ConfigModule.forRoot()],
   controllers: [MsKitchenController],
   providers: [MsKitchenService],
 })

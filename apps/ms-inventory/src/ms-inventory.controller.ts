@@ -7,9 +7,10 @@ import { EventPattern } from '@nestjs/microservices';
 @Controller()
 export class MsInventoryController {
   constructor(
-    @InjectModel(Ingredient.name) private readonly ingredientModel: Model<Ingredient>
+    @InjectModel(Ingredient.name)
+    private readonly ingredientModel: Model<Ingredient>,
   ) {}
-  
+
   @EventPattern('food-donation/test-event-sent')
   async testEvent(data: Record<string, unknown>) {
     console.log('testEvent', data);

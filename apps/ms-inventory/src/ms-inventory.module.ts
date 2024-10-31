@@ -17,7 +17,7 @@ import { Ingredient, IngredientSchema } from './models/Ingredient';
       {
         name: Ingredient.name,
         schema: IngredientSchema,
-      }
+      },
     ]),
   ],
   controllers: [MsInventoryController],
