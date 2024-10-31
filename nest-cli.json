@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/food-donation-backend/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/food-donation-backend/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/food-donation-backend",
+  "projects": {
+    "food-donation-backend": {
+      "type": "application",
+      "root": "apps/food-donation-backend",
+      "entryFile": "main",
+      "sourceRoot": "apps/food-donation-backend/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/food-donation-backend/tsconfig.app.json"
+      }
+    },
+    "ms-order": {
+      "type": "application",
+      "root": "apps/ms-order",
+      "entryFile": "main",
+      "sourceRoot": "apps/ms-order/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ms-order/tsconfig.app.json"
+      }
+    },
+    "ms-kitchen": {
+      "type": "application",
+      "root": "apps/ms-kitchen",
+      "entryFile": "main",
+      "sourceRoot": "apps/ms-kitchen/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ms-kitchen/tsconfig.app.json"
+      }
+    },
+    "ms-inventory": {
+      "type": "application",
+      "root": "apps/ms-inventory",
+      "entryFile": "main",
+      "sourceRoot": "apps/ms-inventory/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ms-inventory/tsconfig.app.json"
+      }
+    },
+    "shared": {
+      "type": "library",
+      "root": "libs/shared",
+      "entryFile": "index",
+      "sourceRoot": "libs/shared/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/shared/tsconfig.lib.json"
+      }
+    }
+  }
+}
