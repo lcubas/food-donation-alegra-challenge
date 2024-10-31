@@ -1,11 +1,20 @@
 import { NestFactory } from '@nestjs/core';
+import { Transport } from '@nestjs/microservices';
 import { MsKitchenModule } from './ms-kitchen.module';
-import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(MsKitchenModule);
-  const configService = app.get(ConfigService);
-  await app.listen(configService.get<number>('PORT', 3001));
+  const app = await NestFactory.createMicroservice(MsKitchenModule, {
+    transport: Transport.RMQ,
+    options: {
+      noAck: false,
+      urls: [process.env.AMQP_URL],
+      queue: process.env.AMQP_QUEUE,
+      queueOptions: {
+        durable: true,
+      },
+    },
+  });
+  app.listen();
 }
 
 bootstrap();

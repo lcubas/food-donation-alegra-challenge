@@ -5,12 +5,7 @@ import { MsKitchenService } from './ms-kitchen.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: [
-        '../../../.env',
-        '.env',
-      ],
-    }),
+    ConfigModule.forRoot(),
   ],
   controllers: [MsKitchenController],
   providers: [MsKitchenService],

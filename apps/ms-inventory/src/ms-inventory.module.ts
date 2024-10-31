@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MsInventoryController } from './ms-inventory.controller';
 import { MsInventoryService } from './ms-inventory.service';
@@ -8,12 +8,7 @@ import { Ingredient, IngredientSchema } from './models/Ingredient';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: [
-        '../../../.env',
-        '.env',
-      ],
-    }),
+    ConfigModule.forRoot(),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useClass: MongooseConnectionConfig,
