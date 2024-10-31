@@ -1,12 +1,16 @@
 import { Controller, Get } from '@nestjs/common';
-import { MsInventoryService } from './ms-inventory.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Ingredient } from './models/Ingredient';
 
 @Controller()
 export class MsInventoryController {
-  constructor(private readonly msInventoryService: MsInventoryService) {}
+  constructor(
+    @InjectModel(Ingredient.name) private readonly ingredientModel: Model<Ingredient>
+  ) {}
 
   @Get()
-  getHello(): string {
-    return this.msInventoryService.getHello();
+  getHello() {
+    return this.ingredientModel.find().exec();
   }
 }

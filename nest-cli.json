@@ -1,24 +1,15 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/food-donation-backend/src",
+  "sourceRoot": "apps/ms-inventory/src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "webpack": true,
-    "tsConfigPath": "apps/food-donation-backend/tsconfig.app.json"
+    "webpack": false,
+    "tsConfigPath": "apps/ms-inventory/tsconfig.app.json"
   },
   "monorepo": true,
-  "root": "apps/food-donation-backend",
+  "root": "apps/ms-inventory",
   "projects": {
-    "food-donation-backend": {
-      "type": "application",
-      "root": "apps/food-donation-backend",
-      "entryFile": "main",
-      "sourceRoot": "apps/food-donation-backend/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/food-donation-backend/tsconfig.app.json"
-      }
-    },
     "ms-order": {
       "type": "application",
       "root": "apps/ms-order",
