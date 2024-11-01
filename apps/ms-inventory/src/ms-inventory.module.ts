@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MsInventoryController } from './ms-inventory.controller';
-import { MsInventoryService } from './ms-inventory.service';
+import { InventoryController } from './inventory.controller';
+import { InventoryService } from './inventory.service';
 import { MongooseConnectionConfig } from './mongoose/MongooseConnectionConfig';
 import { Ingredient, IngredientSchema } from './models/Ingredient';
 
@@ -20,7 +20,7 @@ import { Ingredient, IngredientSchema } from './models/Ingredient';
       },
     ]),
   ],
-  controllers: [MsInventoryController],
-  providers: [MsInventoryService],
+  controllers: [InventoryController],
+  providers: [InventoryService],
 })
 export class MsInventoryModule {}

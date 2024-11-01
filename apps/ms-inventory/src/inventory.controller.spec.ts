@@ -1,19 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MsInventoryController } from './ms-inventory.controller';
-import { MsInventoryService } from './ms-inventory.service';
+import { InventoryController } from './inventory.controller';
+import { InventoryService } from './inventory.service';
 
 describe('MsInventoryController', () => {
-  let msInventoryController: MsInventoryController;
+  let controller: InventoryController;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      controllers: [MsInventoryController],
-      providers: [MsInventoryService],
+      controllers: [InventoryController],
+      providers: [InventoryService],
     }).compile();
 
-    msInventoryController = app.get<MsInventoryController>(
-      MsInventoryController,
-    );
+    controller = app.get<InventoryController>(InventoryController);
   });
 
   describe('root', () => {
