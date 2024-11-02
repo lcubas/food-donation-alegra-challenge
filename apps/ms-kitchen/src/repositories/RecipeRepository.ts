@@ -5,7 +5,10 @@ import { IRecipeRepository } from '../interfaces/IRecipeRepository';
 
 export class RecipeRepository implements IRecipeRepository {
   constructor(
-    @InjectModel(Recipe.name)
-    private readonly recipeModel: Model<Recipe>,
+    @InjectModel(Recipe.name) private readonly recipeModel: Model<Recipe>,
   ) {}
+
+  findById(id: string): Promise<Recipe | null> {
+    return this.recipeModel.findById(id).exec();
+  }
 }

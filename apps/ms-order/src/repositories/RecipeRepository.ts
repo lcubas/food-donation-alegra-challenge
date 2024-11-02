@@ -5,8 +5,7 @@ import { IRecipeRepository } from '../interfaces/IRecipeRepository';
 
 export class RecipeRepository implements IRecipeRepository {
   constructor(
-    @InjectModel(Recipe.name)
-    private readonly recipeModel: Model<Recipe>,
+    @InjectModel(Recipe.name) private readonly recipeModel: Model<Recipe>,
   ) {}
 
   async getRandom(): Promise<Recipe> {

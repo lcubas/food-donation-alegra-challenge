@@ -5,7 +5,6 @@ import { OrderService } from './order.service';
 @Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
-  b;
 
   // TODO: Standardize API responses
   @Post('/place-order')

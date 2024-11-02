@@ -34,10 +34,6 @@ import { RecipeRepository } from './repositories/RecipeRepository';
     ]),
   ],
   controllers: [OrderController],
-  providers: [
-    OrderService,
-    OrderRepository,
-    RecipeRepository,
-  ],
+  providers: [OrderService, OrderRepository, RecipeRepository],
 })
 export class MsOrderModule {}
