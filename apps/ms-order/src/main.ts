@@ -1,11 +1,26 @@
 import { NestFactory } from '@nestjs/core';
-import { MsOrderModule } from './ms-order.module';
 import { ConfigService } from '@nestjs/config';
+import { Transport } from '@nestjs/microservices';
+import { MsOrderModule } from './ms-order.module';
 
+// TODO: Consider using an API Gateway
 async function bootstrap() {
   const app = await NestFactory.create(MsOrderModule);
-  const configService = app.get(ConfigService);
-  await app.listen(configService.get<number>('PORT', 3000));
+  const config = app.get(ConfigService);
+
+  app.connectMicroservice({
+    transport: Transport.RMQ,
+    options: {
+      noAck: false,
+      urls: [process.env.AMQP_URL],
+      queue: process.env.AMQP_ORDER_QUEUE,
+      queueOptions: {
+        durable: true,
+      },
+    },
+  });
+  await app.startAllMicroservices();
+  await app.listen(config.get<number>('PORT', 3000));
 }
 
 bootstrap();
