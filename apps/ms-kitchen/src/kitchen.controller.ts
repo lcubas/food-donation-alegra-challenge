@@ -17,6 +17,8 @@ export class KitchenController {
     @Payload() payload: OrderCreatedEventPayload,
     @Ctx() context: RmqContext,
   ) {
+    console.log("MS_KITCHEN:KitchenController:handleOrderCreatedEvent->", payload)
+
     await this.kitchenService.handleOrderCreatedEvent(payload);
 
     const channel = context.getChannelRef();

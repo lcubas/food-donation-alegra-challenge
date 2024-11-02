@@ -14,10 +14,7 @@ import { Ingredient, IngredientSchema } from './models/Ingredient';
       useClass: MongooseConnectionConfig,
     }),
     MongooseModule.forFeature([
-      {
-        name: Ingredient.name,
-        schema: IngredientSchema,
-      },
+      { name: Ingredient.name, schema: IngredientSchema },
     ]),
   ],
   controllers: [InventoryController],

@@ -13,7 +13,7 @@ async function bootstrap() {
     options: {
       noAck: false,
       urls: [process.env.AMQP_URL],
-      queue: process.env.AMQP_ORDER_QUEUE,
+      queue: process.env.AMQP_MS_ORDER_QUEUE,
       queueOptions: {
         durable: true,
       },

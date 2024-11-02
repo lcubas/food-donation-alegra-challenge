@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 export enum OrderStateEnum {
   CREATED = 'created',
-  INGREDIENTS_REQUESTED = 'ingredient_requested',
+  INGREDIENTS_REQUESTED = 'ingredients_requested',
   PREPARING = 'preparing',
   COMPLETED = 'completed',
 }
