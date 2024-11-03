@@ -5,6 +5,15 @@ import { InventoryService } from './inventory.service';
 import { MarketApiService } from './market-api.service';
 import { lastValueFrom } from 'rxjs';
 
+export type RecipeIngredientData = {
+  name: string,
+  quantity: number,
+};
+
+export type IngredientsRequestEventPayload = {
+  ingredients: RecipeIngredientData[]
+};
+
 @Controller()
 export class InventoryController {
   constructor(
@@ -13,7 +22,10 @@ export class InventoryController {
   ) {}
 
   @EventPattern(INGREDIENTS_REQUESTED_EVENT)
-  async handleIngredientsRequested(@Payload() payload: any, @Ctx() context: RmqContext,) {
+  async handleIngredientsRequested(
+    @Payload() payload: IngredientsRequestEventPayload,
+    @Ctx() context: RmqContext
+  ) {
     console.log("MS_INVENTORY:InventoryController:handleIngredientsRequested->", payload)
 
     const fd = await lastValueFrom(this.api.getIngredient(payload.ingredients[0].name));

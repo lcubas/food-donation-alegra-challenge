@@ -1,71 +1,71 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Ingredient } from './models/Ingredient';
-import { MS_ORDER_CLIENT_NAME } from '@app/libs/shared';
-import { MarketApiService } from './market-api.service';
 import { lastValueFrom } from 'rxjs';
+import { INGREDIENTS_SUPPLIED_EVENT, MS_ORDER_CLIENT_NAME } from '@app/libs/shared';
+import { MarketApiService } from './market-api.service';
+import { IngredientRepository } from './repositories/IngredientRepository';
+import { RecipeIngredientData } from './inventory.controller';
 
 @Injectable()
 export class InventoryService {
   constructor(
-    private readonly marketApi: MarketApiService,
+    private readonly marketApiService: MarketApiService,
+    private readonly ingredientRepository: IngredientRepository,
 
     @Inject(MS_ORDER_CLIENT_NAME) private readonly orderClient: ClientProxy,
-    @InjectModel(Ingredient.name) private readonly ingredientModel: Model<Ingredient>,
   ) {}
 
-  async handleIngredientRequest(ingredients: Ingredient[]) {
+  async checkAvailabilityOfIngredients(ingredients: RecipeIngredientData[]) {
     const unavailableIngredients = [];
+    const availableIngredients = await this.ingredientRepository.findAll();
 
     // Verifica la disponibilidad de ingredientes
     for (const item of ingredients) {
-      const ingredient = await this.ingredientModel.findOne({ name: item.name });
-      if (!ingredient || ingredient.stockQuantity < item.stockQuantity) {
-        unavailableIngredients.push(item);
-      } else {
-        ingredient.stockQuantity -= item.stockQuantity;
-        await ingredient.save();
+      const ingredient = availableIngredients.find(ingredient => ingredient.name === item.name);
+      
+      if (!ingredient || ingredient.stockQuantity < item.quantity) {
+        unavailableIngredients.push({
+          ...item,
+          quantity: item.quantity - ingredient.stockQuantity,
+        });
       }
     }
 
     // Si faltan ingredientes, intenta comprarlos
     if (unavailableIngredients.length > 0) {
       await this.purchaseMissingIngredients(unavailableIngredients);
-    } else {
-      // TODO: orderId is missing to emit the "ingredients supplied" event
-      this.orderClient.emit('ingredients_supplied', {});
     }
+      
+    this.orderClient.emit(INGREDIENTS_SUPPLIED_EVENT, {});
   }
 
-  private async purchaseMissingIngredients(ingredients: Ingredient[]) {
-    const purchasedItems = [];
+  private async purchaseMissingIngredients(ingredientsToBuy: RecipeIngredientData[]) {
+    const missingIngredients = [];
 
-    for (const item of ingredients) {
+    for (const item of ingredientsToBuy) {
       try {
-        const quantitySold = await lastValueFrom(this.marketApi.getIngredient(item.name));
+        const quantitySold = await lastValueFrom(
+          this.marketApiService.getIngredient(item.name)
+        );
 
         if (quantitySold > 0) {
-          purchasedItems.push({ ingredient: item.name, quantity: quantitySold });
-          await this.ingredientModel.updateOne(
-            { name: item.name },
-            { $inc: { quantity: quantitySold } },
-            { upsert: true },
-          );
+          if (quantitySold < item.quantity) {
+            missingIngredients.push({
+              ...item,
+              quantity: item.quantity - quantitySold,
+            })
+          }
+
+          this.ingredientRepository.update(item.name, {
+            $inc: { quantity: quantitySold },
+          })
+        } else {
+          missingIngredients.push(item);
         }
       } catch (error) {
         console.error(`Error purchasing ${item.name}:`, error.message);
+        missingIngredients.push(item);
       }
-    }
-
-    // Si los ingredientes aún faltan, espera a la disponibilidad en el mercado
-    if (purchasedItems.length === ingredients.length) {
-      // TODO: orderId is missing to emit the "ingredients supplied" event
-      this.orderClient.emit('ingredients_supplied', {});
-    } else {
-      // TODO: Implement retry or notification logic
-      console.warn('Some ingredients are still missing after purchase attempt');
     }
   }
 }

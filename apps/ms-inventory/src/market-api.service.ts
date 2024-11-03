@@ -11,7 +11,7 @@ export class MarketApiService {
         fetch(`${this.MARKET_API_URL}?ingredientt=${ingredient}`)
       ).pipe(
         switchMap(response => from(response.json())),
-        map(data => data.quantitySold || 0)
+        map(data => parseInt(data.quantitySold) || 0)
       );
   }
 }
