@@ -1,19 +1,38 @@
-import { Controller, Get } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Ingredient } from './models/Ingredient';
-import { EventPattern } from '@nestjs/microservices';
-import { PLACE_ORDER_EVENT_NAME } from '@app/libs/shared';
+import { Controller } from '@nestjs/common';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import { INGREDIENTS_REQUESTED_EVENT } from '@app/libs/shared';
+import { InventoryService } from './inventory.service';
+
+export type IngredientRequested = {
+  name: string;
+  quantity: number;
+};
+
+export type IngredientsRequestEventPayload = {
+  orderId: string;
+  ingredients: IngredientRequested[];
+};
 
 @Controller()
 export class InventoryController {
-  constructor(
-    @InjectModel(Ingredient.name)
-    private readonly ingredientModel: Model<Ingredient>,
-  ) {}
+  constructor(private readonly inventoryService: InventoryService) {}
 
-  // @EventPattern(PLACE_ORDER_EVENT_NAME)
-  // async testEvent(data: Record<string, unknown>) {
-  //   console.log('testEvent', data);
-  // }
+  @EventPattern(INGREDIENTS_REQUESTED_EVENT)
+  async handleIngredientsRequested(
+    @Payload() payload: IngredientsRequestEventPayload,
+    @Ctx() context: RmqContext,
+  ) {
+    console.log(
+      'MS_INVENTORY:InventoryController:handleIngredientsRequested->',
+      payload,
+    );
+
+    await this.inventoryService.checkAvailabilityOfIngredients(
+      payload.ingredients,
+      payload.orderId,
+    );
+
+    const channel = context.getChannelRef();
+    channel.ack(context.getMessage());
+  }
 }

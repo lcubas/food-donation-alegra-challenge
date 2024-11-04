@@ -20,7 +20,7 @@ import { RecipeRepository } from './repositories/RecipeRepository';
         transport: Transport.RMQ,
         options: {
           urls: [process.env.AMQP_URL],
-          queue: process.env.AMQP_KITCHEN_QUEUE,
+          queue: process.env.AMQP_MS_KITCHEN_QUEUE,
         },
       },
     ]),

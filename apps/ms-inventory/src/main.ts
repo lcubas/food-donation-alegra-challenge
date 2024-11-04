@@ -8,7 +8,7 @@ async function bootstrap() {
     options: {
       noAck: false,
       urls: [process.env.AMQP_URL],
-      queue: process.env.AMQP_KITCHEN_QUEUE,
+      queue: process.env.AMQP_MS_INVENTORY_QUEUE,
       queueOptions: {
         durable: true,
       },

@@ -18,13 +18,19 @@ export class OrderService {
   // TODO: Improve error handling
   async handlePlaceOrder() {
     const session = await this.orderRepository.startTransaction();
-    const randomRecipe = await this.recipeRepository.getRandom();
 
     try {
+      const randomRecipe = await this.recipeRepository.getRandom();
       const newOrder = await this.orderRepository.create({
         recipeId: randomRecipe._id.toString(),
         status: OrderStateEnum.CREATED,
       });
+
+      console.log(
+        'MS_ORDER:OrderService:handlePlaceOrder->',
+        randomRecipe,
+        newOrder,
+      );
 
       await lastValueFrom(
         this.kitchenClientProxy.emit(ORDER_CREATED_EVENT, {

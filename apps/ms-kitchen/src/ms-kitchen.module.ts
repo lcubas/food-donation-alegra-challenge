@@ -2,7 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MS_KITCHEN_CLIENT_NAME, MS_ORDER_CLIENT_NAME } from '@app/libs/shared';
+import {
+  MS_INVENTORY_CLIENT_NAME,
+  MS_ORDER_CLIENT_NAME,
+} from '@app/libs/shared';
 import { KitchenController } from './kitchen.controller';
 import { KitchenService } from './kitchen.service';
 import { MongooseConnectionConfig } from './mongoose/MongooseConnectionConfig';
@@ -16,14 +19,11 @@ import { OrderRepository } from './repositories/OrderRepository';
     ConfigModule.forRoot(),
     ClientsModule.register([
       {
-        name: MS_KITCHEN_CLIENT_NAME,
+        name: MS_INVENTORY_CLIENT_NAME,
         transport: Transport.RMQ,
         options: {
           urls: [process.env.AMQP_URL],
-          queue: process.env.AMQP_KITCHEN_QUEUE,
-          queueOptions: {
-            durable: false,
-          },
+          queue: process.env.AMQP_MS_INVENTORY_QUEUE,
         },
       },
       {
@@ -31,10 +31,7 @@ import { OrderRepository } from './repositories/OrderRepository';
         transport: Transport.RMQ,
         options: {
           urls: [process.env.AMQP_URL],
-          queue: process.env.AMQP_ORDER_QUEUE,
-          queueOptions: {
-            durable: false,
-          },
+          queue: process.env.AMQP_MS_ORDER_QUEUE,
         },
       },
     ]),

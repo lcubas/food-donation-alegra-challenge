@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, HydratedDocument } from 'mongoose';
+import { Document } from 'mongoose';
 
 @Schema()
 export class Ingredient extends Document {
@@ -9,7 +9,5 @@ export class Ingredient extends Document {
   @Prop()
   stockQuantity: number;
 }
-
-// export type IngredientDocument = HydratedDocument<Ingredient>;
 
 export const IngredientSchema = SchemaFactory.createForClass(Ingredient);
