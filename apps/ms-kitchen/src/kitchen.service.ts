@@ -3,7 +3,10 @@ import { OrderStateEnum } from './models/Order';
 import { RecipeRepository } from './repositories/RecipeRepository';
 import { OrderRepository } from './repositories/OrderRepository';
 import { OrderCreatedEventPayload } from './kitchen.controller';
-import { INGREDIENTS_REQUESTED_EVENT, MS_INVENTORY_CLIENT_NAME } from '@app/libs/shared';
+import {
+  INGREDIENTS_REQUESTED_EVENT,
+  MS_INVENTORY_CLIENT_NAME,
+} from '@app/libs/shared';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 
@@ -16,12 +19,14 @@ export class KitchenService {
     @Inject(MS_INVENTORY_CLIENT_NAME) private inventoryClientProxy: ClientProxy,
   ) {}
 
-  async handleOrderCreatedEvent(data: OrderCreatedEventPayload) {
+  async handleOrderCreated(data: OrderCreatedEventPayload) {
     const recipe = await this.recipeRepository.findById(data.recipeId);
-    const ingredients = recipe.ingredients;
 
     await lastValueFrom(
-      this.inventoryClientProxy.emit(INGREDIENTS_REQUESTED_EVENT, { ingredients })
+      this.inventoryClientProxy.emit(INGREDIENTS_REQUESTED_EVENT, {
+        orderId: data.orderId,
+        ingredients: recipe.ingredients,
+      }),
     );
     await this.orderRepository.update(data.orderId, {
       status: OrderStateEnum.INGREDIENTS_REQUESTED,

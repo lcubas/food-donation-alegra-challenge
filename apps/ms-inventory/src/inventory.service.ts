@@ -1,13 +1,19 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
-import { INGREDIENTS_SUPPLIED_EVENT, MS_ORDER_CLIENT_NAME } from '@app/libs/shared';
+import {
+  INGREDIENTS_SUPPLIED_EVENT,
+  MS_ORDER_CLIENT_NAME,
+} from '@app/libs/shared';
 import { MarketApiService } from './market-api.service';
 import { IngredientRepository } from './repositories/IngredientRepository';
-import { RecipeIngredientData } from './inventory.controller';
+import { IngredientRequested } from './inventory.controller';
 
 @Injectable()
 export class InventoryService {
+  private readonly maxRetries = 3;
+  private readonly retryDelay = 1000;
+
   constructor(
     private readonly marketApiService: MarketApiService,
     private readonly ingredientRepository: IngredientRepository,
@@ -15,14 +21,18 @@ export class InventoryService {
     @Inject(MS_ORDER_CLIENT_NAME) private readonly orderClient: ClientProxy,
   ) {}
 
-  async checkAvailabilityOfIngredients(ingredients: RecipeIngredientData[]) {
+  async checkAvailabilityOfIngredients(
+    ingredients: IngredientRequested[],
+    orderId: string,
+  ) {
     const unavailableIngredients = [];
     const availableIngredients = await this.ingredientRepository.findAll();
 
-    // Verifica la disponibilidad de ingredientes
     for (const item of ingredients) {
-      const ingredient = availableIngredients.find(ingredient => ingredient.name === item.name);
-      
+      const ingredient = availableIngredients.find(
+        (ingredient) => ingredient.name === item.name,
+      );
+
       if (!ingredient || ingredient.stockQuantity < item.quantity) {
         unavailableIngredients.push({
           ...item,
@@ -31,41 +41,57 @@ export class InventoryService {
       }
     }
 
-    // Si faltan ingredientes, intenta comprarlos
+    // If ingredients are unavailable, try to buy them.
     if (unavailableIngredients.length > 0) {
-      await this.purchaseMissingIngredients(unavailableIngredients);
+      await this.purchaseUnavailableIngredients(unavailableIngredients);
     }
-      
-    this.orderClient.emit(INGREDIENTS_SUPPLIED_EVENT, {});
+
+    await lastValueFrom(
+      this.orderClient.emit(INGREDIENTS_SUPPLIED_EVENT, { orderId }),
+    );
   }
 
-  private async purchaseMissingIngredients(ingredientsToBuy: RecipeIngredientData[]) {
-    const missingIngredients = [];
+  private async purchaseUnavailableIngredients(
+    ingredients: IngredientRequested[],
+  ) {
+    for (const item of ingredients) {
+      let remainingQuantity = item.quantity;
+      let attempts = 0;
 
-    for (const item of ingredientsToBuy) {
-      try {
-        const quantitySold = await lastValueFrom(
-          this.marketApiService.getIngredient(item.name)
-        );
+      while (remainingQuantity > 0 && attempts < this.maxRetries) {
+        attempts++;
+        try {
+          const quantitySold = await lastValueFrom(
+            this.marketApiService.getIngredient(item.name),
+          );
 
-        if (quantitySold > 0) {
-          if (quantitySold < item.quantity) {
-            missingIngredients.push({
-              ...item,
-              quantity: item.quantity - quantitySold,
-            })
+          if (quantitySold > 0) {
+            remainingQuantity -= quantitySold;
+
+            await this.ingredientRepository.update(item.name, {
+              $inc: { stockQuantity: quantitySold },
+            });
+
+            if (remainingQuantity <= 0) {
+              break;
+            }
           }
-
-          this.ingredientRepository.update(item.name, {
-            $inc: { quantity: quantitySold },
-          })
-        } else {
-          missingIngredients.push(item);
+        } catch (error) {
+          console.error(
+            `Attempt ${attempts}: Error purchasing ${item.name}:`,
+            error.message,
+          );
         }
-      } catch (error) {
-        console.error(`Error purchasing ${item.name}:`, error.message);
-        missingIngredients.push(item);
+
+        // Wait before next attempt
+        if (remainingQuantity > 0) {
+          await this.delay(this.retryDelay);
+        }
       }
     }
+  }
+
+  private delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

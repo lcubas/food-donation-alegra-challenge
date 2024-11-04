@@ -26,7 +26,11 @@ export class OrderService {
         status: OrderStateEnum.CREATED,
       });
 
-      console.log("MS_ORDER:OrderService:handlePlaceOrder->", randomRecipe, newOrder);
+      console.log(
+        'MS_ORDER:OrderService:handlePlaceOrder->',
+        randomRecipe,
+        newOrder,
+      );
 
       await lastValueFrom(
         this.kitchenClientProxy.emit(ORDER_CREATED_EVENT, {

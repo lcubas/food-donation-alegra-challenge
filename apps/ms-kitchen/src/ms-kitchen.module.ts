@@ -2,7 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MS_INVENTORY_CLIENT_NAME, MS_ORDER_CLIENT_NAME } from '@app/libs/shared';
+import {
+  MS_INVENTORY_CLIENT_NAME,
+  MS_ORDER_CLIENT_NAME,
+} from '@app/libs/shared';
 import { KitchenController } from './kitchen.controller';
 import { KitchenService } from './kitchen.service';
 import { MongooseConnectionConfig } from './mongoose/MongooseConnectionConfig';
