@@ -41,4 +41,22 @@ export class OrderService {
       throw error;
     }
   }
+
+  async findAllCompletedOrders () {
+    return await this.orderRepository.findByQuery({
+      status: OrderStateEnum.COMPLETED,
+    });
+  }
+
+  async findAllActiveOrders () {
+    return await this.orderRepository.findByQuery({
+      status: {
+        $ne: OrderStateEnum.COMPLETED,
+      },
+    });
+  }
+
+  async findOrderById (orderId: string) {
+    return await this.orderRepository.findById(orderId);
+  }
 }

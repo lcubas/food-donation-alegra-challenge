@@ -1,4 +1,4 @@
-import { Controller, Post, Res } from '@nestjs/common';
+import { Controller, Get, Param, Post, Res } from '@nestjs/common';
 import { type Response } from 'express';
 import { OrderService } from './order.service';
 
@@ -16,5 +16,20 @@ export class OrderController {
       order: newOrder,
       message: 'Order placed successfully',
     });
+  }
+
+  @Get('/active')
+  async findAllActiveOrders() {
+    return await this.orderService.findAllActiveOrders();
+  }
+
+  @Get('/historical')
+  async findAllCompletedOrders() {
+    return await this.orderService.findAllCompletedOrders();
+  }
+
+  @Get('/:orderId')
+  async findById(@Param('orderId') orderId: string) {
+    return await this.orderService.findOrderById(orderId);
   }
 }

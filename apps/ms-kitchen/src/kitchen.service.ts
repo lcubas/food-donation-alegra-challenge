@@ -44,7 +44,7 @@ export class KitchenService {
     await this.decreaseUsedIngredients(order.recipeId);
 
     // Simulate the preparation time
-    await this.delay(1000);
+    await this.delay(5000);
 
     await this.orderRepository.update(orderId, {
       status: OrderStateEnum.COMPLETED,
