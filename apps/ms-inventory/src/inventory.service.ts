@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import {
   INGREDIENTS_SUPPLIED_EVENT,
-  MS_ORDER_CLIENT_NAME,
+  MS_KITCHEN_CLIENT_NAME,
 } from '@app/libs/shared';
 import { MarketApiService } from './market-api.service';
 import { IngredientRepository } from './repositories/IngredientRepository';
@@ -18,7 +18,8 @@ export class InventoryService {
     private readonly marketApiService: MarketApiService,
     private readonly ingredientRepository: IngredientRepository,
 
-    @Inject(MS_ORDER_CLIENT_NAME) private readonly orderClient: ClientProxy,
+    @Inject(MS_KITCHEN_CLIENT_NAME)
+    private readonly kitchenClientProxy: ClientProxy,
   ) {}
 
   async checkAvailabilityOfIngredients(
@@ -47,7 +48,7 @@ export class InventoryService {
     }
 
     await lastValueFrom(
-      this.orderClient.emit(INGREDIENTS_SUPPLIED_EVENT, { orderId }),
+      this.kitchenClientProxy.emit(INGREDIENTS_SUPPLIED_EVENT, { orderId }),
     );
   }
 
@@ -60,6 +61,7 @@ export class InventoryService {
 
       while (remainingQuantity > 0 && attempts < this.maxRetries) {
         attempts++;
+
         try {
           const quantitySold = await lastValueFrom(
             this.marketApiService.getIngredient(item.name),
@@ -77,10 +79,7 @@ export class InventoryService {
             }
           }
         } catch (error) {
-          console.error(
-            `Attempt ${attempts}: Error purchasing ${item.name}:`,
-            error.message,
-          );
+          console.log(error);
         }
 
         // Wait before next attempt

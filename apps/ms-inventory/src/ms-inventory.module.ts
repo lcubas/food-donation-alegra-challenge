@@ -2,12 +2,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MS_KITCHEN_CLIENT_NAME, MS_ORDER_CLIENT_NAME } from '@app/libs/shared';
+import { MS_KITCHEN_CLIENT_NAME } from '@app/libs/shared';
 import { InventoryController } from './inventory.controller';
 import { InventoryService } from './inventory.service';
 import { MongooseConnectionConfig } from './mongoose/MongooseConnectionConfig';
 import { Ingredient, IngredientSchema } from './models/Ingredient';
 import { MarketApiService } from './market-api.service';
+import { IngredientRepository } from './repositories/IngredientRepository';
 
 @Module({
   imports: [
@@ -18,15 +19,7 @@ import { MarketApiService } from './market-api.service';
         transport: Transport.RMQ,
         options: {
           urls: [process.env.AMQP_URL],
-          queue: process.env.AMQP_MS_INVENTORY_QUEUE,
-        },
-      },
-      {
-        name: MS_ORDER_CLIENT_NAME,
-        transport: Transport.RMQ,
-        options: {
-          urls: [process.env.AMQP_URL],
-          queue: process.env.AMQP_MS_ORDER_QUEUE,
+          queue: process.env.AMQP_MS_KITCHEN_QUEUE,
         },
       },
     ]),
@@ -39,6 +32,6 @@ import { MarketApiService } from './market-api.service';
     ]),
   ],
   controllers: [InventoryController],
-  providers: [InventoryService, MarketApiService],
+  providers: [InventoryService, MarketApiService, IngredientRepository],
 })
 export class MsInventoryModule {}

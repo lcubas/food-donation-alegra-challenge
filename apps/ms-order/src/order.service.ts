@@ -26,12 +26,6 @@ export class OrderService {
         status: OrderStateEnum.CREATED,
       });
 
-      console.log(
-        'MS_ORDER:OrderService:handlePlaceOrder->',
-        randomRecipe,
-        newOrder,
-      );
-
       await lastValueFrom(
         this.kitchenClientProxy.emit(ORDER_CREATED_EVENT, {
           orderId: newOrder.id,
@@ -43,9 +37,7 @@ export class OrderService {
       return newOrder;
     } catch (error) {
       session.abortTransaction();
-
-      console.log(error);
-
+      console.error(error);
       throw error;
     }
   }

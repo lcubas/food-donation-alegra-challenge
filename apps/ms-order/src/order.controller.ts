@@ -11,6 +11,7 @@ export class OrderController {
   async placeOrder(@Res() response: Response) {
     // TODO: Use serialization for standarized model responses
     const newOrder = await this.orderService.handlePlaceOrder();
+
     response.status(201).send({
       order: newOrder,
       message: 'Order placed successfully',

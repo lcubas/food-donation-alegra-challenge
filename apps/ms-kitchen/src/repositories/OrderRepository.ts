@@ -12,7 +12,10 @@ export class OrderRepository implements IOrderRepository {
     return await this.orderModel.findById(orderId).exec();
   }
 
-  async update(orderId: string, updateQuery: UpdateQuery<Order>): Promise<void> {
+  async update(
+    orderId: string,
+    updateQuery: UpdateQuery<Order>,
+  ): Promise<void> {
     await this.orderModel.updateOne({ _id: orderId }, updateQuery);
   }
 }
