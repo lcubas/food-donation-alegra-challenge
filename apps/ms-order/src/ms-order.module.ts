@@ -10,6 +10,11 @@ import { Order, OrderSchema } from './models/Order';
 import { Recipe, RecipeSchema } from './models/Recipe';
 import { OrderRepository } from './repositories/OrderRepository';
 import { RecipeRepository } from './repositories/RecipeRepository';
+import { Ingredient, IngredientSchema } from './models/Ingredient';
+import { RecipeController } from './recipe.controller';
+import { IngredientController } from './ingredient.controller';
+import { IngredientRepository } from './repositories/IngredientRepository';
+import { RecipeService } from './recipe.service';
 
 @Module({
   imports: [
@@ -31,9 +36,20 @@ import { RecipeRepository } from './repositories/RecipeRepository';
     MongooseModule.forFeature([
       { name: Order.name, schema: OrderSchema },
       { name: Recipe.name, schema: RecipeSchema },
+      { name: Ingredient.name, schema: IngredientSchema },
     ]),
   ],
-  controllers: [OrderController],
-  providers: [OrderService, OrderRepository, RecipeRepository],
+  controllers: [
+    OrderController,
+    RecipeController,
+    IngredientController,
+  ],
+  providers: [
+    OrderService,
+    RecipeService,
+    OrderRepository,
+    RecipeRepository,
+    IngredientRepository,
+  ],
 })
 export class MsOrderModule {}

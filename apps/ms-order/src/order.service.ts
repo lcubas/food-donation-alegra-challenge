@@ -26,12 +26,6 @@ export class OrderService {
         status: OrderStateEnum.CREATED,
       });
 
-      console.log(
-        'MS_ORDER:OrderService:handlePlaceOrder->',
-        randomRecipe,
-        newOrder,
-      );
-
       await lastValueFrom(
         this.kitchenClientProxy.emit(ORDER_CREATED_EVENT, {
           orderId: newOrder.id,
@@ -43,10 +37,26 @@ export class OrderService {
       return newOrder;
     } catch (error) {
       session.abortTransaction();
-
-      console.log(error);
-
+      console.error(error);
       throw error;
     }
+  }
+
+  async findAllCompletedOrders () {
+    return await this.orderRepository.findByQuery({
+      status: OrderStateEnum.COMPLETED,
+    });
+  }
+
+  async findAllActiveOrders () {
+    return await this.orderRepository.findByQuery({
+      status: {
+        $ne: OrderStateEnum.COMPLETED,
+      },
+    });
+  }
+
+  async findOrderById (orderId: string) {
+    return await this.orderRepository.findById(orderId);
   }
 }

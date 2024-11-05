@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { OrderStateEnum } from './models/Order';
 import { RecipeRepository } from './repositories/RecipeRepository';
 import { OrderRepository } from './repositories/OrderRepository';
-import { OrderCreatedEventPayload } from './kitchen.controller';
 import {
   INGREDIENTS_REQUESTED_EVENT,
   MS_INVENTORY_CLIENT_NAME,
@@ -21,16 +20,16 @@ export class KitchenService {
     @Inject(MS_INVENTORY_CLIENT_NAME) private inventoryClientProxy: ClientProxy,
   ) {}
 
-  async handleOrderCreated(data: OrderCreatedEventPayload) {
-    const recipe = await this.recipeRepository.findById(data.recipeId);
+  async handleOrderCreated(orderId: string, recipeId: string) {
+    const recipe = await this.recipeRepository.findById(recipeId);
 
     await lastValueFrom(
       this.inventoryClientProxy.emit(INGREDIENTS_REQUESTED_EVENT, {
-        orderId: data.orderId,
+        orderId: orderId,
         ingredients: recipe.ingredients,
       }),
     );
-    await this.orderRepository.update(data.orderId, {
+    await this.orderRepository.update(orderId, {
       status: OrderStateEnum.INGREDIENTS_REQUESTED,
     });
   }
@@ -45,20 +44,20 @@ export class KitchenService {
     await this.decreaseUsedIngredients(order.recipeId);
 
     // Simulate the preparation time
-    await this.delay(1000);
+    await this.delay(5000);
 
     await this.orderRepository.update(orderId, {
       status: OrderStateEnum.COMPLETED,
+      completedAt: new Date(),
     });
   }
 
-  // TODO: Consider doing this in the inventory microservice
   private async decreaseUsedIngredients(recipeId: string) {
     const recipe = await this.recipeRepository.findById(recipeId);
 
     for (const ingredient of recipe.ingredients) {
       await this.ingredientRepository.update(ingredient.name, {
-        $inc: { quantity: -ingredient.quantity },
+        $inc: { stockQuantity: -ingredient.quantity },
       });
     }
   }

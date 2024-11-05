@@ -22,11 +22,6 @@ export class InventoryController {
     @Payload() payload: IngredientsRequestEventPayload,
     @Ctx() context: RmqContext,
   ) {
-    console.log(
-      'MS_INVENTORY:InventoryController:handleIngredientsRequested->',
-      payload,
-    );
-
     await this.inventoryService.checkAvailabilityOfIngredients(
       payload.ingredients,
       payload.orderId,

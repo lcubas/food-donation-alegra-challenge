@@ -1,5 +1,5 @@
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { ClientSession, Connection, Model } from 'mongoose';
+import { ClientSession, Connection, FilterQuery, Model } from 'mongoose';
 import { IOrderRepository } from '../interfaces/IOrderRepository';
 import { Order } from '../models/Order';
 
@@ -9,7 +9,19 @@ export class OrderRepository implements IOrderRepository {
     @InjectModel(Order.name) private readonly orderModel: Model<Order>,
   ) {}
 
-  async create(order: Partial<Order>): Promise<Order> {
+  findByQuery(filterQuery: FilterQuery<Order>) {
+    return this.orderModel.find<Order>(filterQuery).exec();
+  }
+
+  findById(id: string): Promise<Order | null> {
+    return this.orderModel.findById<Order>(id).exec();
+  }
+
+  findAll(): Promise<Order[]> {
+    return this.orderModel.find<Order>().exec();
+  }
+
+  create(order: Partial<Order>): Promise<Order> {
     return this.orderModel.create(order);
   }
 
